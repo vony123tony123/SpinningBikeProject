@@ -8,10 +8,6 @@ Our segmentation code is developed on top of [MMSegmentation v0.27.0](https://gi
 
 - [x] [ADE20K](configs/ade20k/)
 - [x] [Cityscapes](configs/cityscapes/)
-- [ ] COCO-Stuff-164K
-- [ ] COCO-Stuff-10K
-- [ ] Pascal Context
-- [ ] NYU Depth V2
 
 ## Usage
 
@@ -27,7 +23,7 @@ cd InternImage
 - Create a conda virtual environment and activate it:
 
 ```bash
-conda create -n internimage python=3.7 -y
+conda create -n internimage python=3.9 -y
 conda activate internimage
 ```
 
