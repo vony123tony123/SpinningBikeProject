@@ -1,5 +1,11 @@
 # InternImage for Semantic Segmentation
 
+## pth download
+https://huggingface.co/OpenGVLab/InternImage/resolve/main/upernet_internimage_xl_512x1024_160k_mapillary2cityscapes.pth \
+put it in ./checkpoint_dir/seg/
+
+--
+
 This folder contains the implementation of the InternImage for semantic segmentation. 
 
 Our segmentation code is developed on top of [MMSegmentation v0.27.0](https://github.com/open-mmlab/mmsegmentation/tree/v0.27.0).
