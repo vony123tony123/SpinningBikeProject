@@ -150,7 +150,7 @@ def pipline(model, img):
         contours, hierarchy = cv2.findContours(gray_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
         # 輪廓平滑化
-        cv2.approxPolyDP(contours[0], contours[0], 15, False);
+        cv2.approxPolyDP(contours[0], 15, False);
         edges = np.zeros_like(segment_image)
         cv2.drawContours(edges, contours, 0, 255, 2, 8);
         edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR) 
@@ -190,7 +190,7 @@ def pipline(model, img):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('--img', default="D:/Project/Spinning_Bike/video_images/30427_hd_Trim_Trim/130.jpg", help='Image file')
+    parser.add_argument('--img', default="D:/Project/SpinningBikeProject/Data/video_images/30427_hd_Trim_Trim/130.jpg", help='Image file')
     parser.add_argument('--config', default="configs/cityscapes/upernet_internimage_xl_512x1024_160k_mapillary2cityscapes.py", help='Config file')
     parser.add_argument('--checkpoint', default="checkpoint_dir/seg/upernet_internimage_xl_512x1024_160k_mapillary2cityscapes.pth", help='Checkpoint file')
     parser.add_argument('--out', type=str, default="demo", help='out dir')
@@ -221,8 +221,8 @@ def main():
     img = cv2.imread(args.img)
     output_img = pipline(model, img)
     cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
-    cv2.imshow("demo", output_img)
-    cv2.waitkey(0)
+    cv2.imshow("demo", img)
+    cv2.waitKey(0)
 
 
 
