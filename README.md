@@ -1,6 +1,6 @@
 # SpinningBikeProject
 ## Test Video Link
-https://drive.google.com/file/d/1ofKwTssVWvjcTAJPS9sfAsZiZw3-Lw_y/view?usp=share_link
+https://drive.google.com/drive/folders/1Sb6b0BC1J_1LKZ2U57y-wOMGemdH8yn_?usp=sharing
 
 ## 目前問題
 路面轉彎角度和方向偵測\
