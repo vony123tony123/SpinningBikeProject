@@ -10,6 +10,7 @@ segment -> Canny -> mask -> hough -> 找兩線交點 -> 找夾角
 \
 方法二:\
 segment -> Canny -> 找出邊緣的最高點\
+效果比方法一好，但是入彎處會有問題(因為入彎處的曲線最高點可能不是道路尾端的點) \ 
 \
 方法三:\
 segment -> findContours -> approxPolyDP -> (找出邊緣的最高點 / hough -> 找兩線交點 -> 找夾角)
