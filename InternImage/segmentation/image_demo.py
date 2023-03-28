@@ -150,7 +150,7 @@ def pipline(model, img):
         contours, hierarchy = cv2.findContours(gray_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
         # 輪廓平滑化
-        cv2.approxPolyDP(contours[0], 15, False);
+        cv2.approxPolyDP(contours[0], 15, closed = False);
         edges = np.zeros_like(segment_image)
         cv2.drawContours(edges, contours, 0, 255, 2, 8);
         edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR) 
@@ -184,15 +184,15 @@ def pipline(model, img):
         #         top_point = coordinate
         # cv2.line(edges, origin, top_point, 255, 2)
 
-        test_images_output = weighted_img(edges, segment_image, α=0.8, β=1., γ=0.)
+        test_images_output = weighted_img(edges, img, α=0.8, β=1., γ=0.)
 
         return test_images_output
 
 def main():
     parser = ArgumentParser()
     parser.add_argument('--img', default="D:/Project/SpinningBikeProject/Data/video_images/30427_hd_Trim_Trim/130.jpg", help='Image file')
-    parser.add_argument('--config', default="configs/cityscapes/upernet_internimage_xl_512x1024_160k_mapillary2cityscapes.py", help='Config file')
-    parser.add_argument('--checkpoint', default="checkpoint_dir/seg/upernet_internimage_xl_512x1024_160k_mapillary2cityscapes.pth", help='Checkpoint file')
+    parser.add_argument('--config', default="configs/cityscapes/upernet_internimage_l_512x1024_160k_mapillary2cityscapes.py", help='Config file')
+    parser.add_argument('--checkpoint', default="checkpoint_dir/seg/upernet_internimage_l_512x1024_160k_mapillary2cityscapes.pth", help='Checkpoint file')
     parser.add_argument('--out', type=str, default="demo", help='out dir')
     parser.add_argument(
         '--device', default='cuda:0', help='Device used for inference')
@@ -217,57 +217,67 @@ def main():
     else:
         model.CLASSES = get_classes(args.palette)
 
-    # test a single image
-    img = cv2.imread(args.img)
-    output_img = pipline(model, img)
-    cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
-    cv2.imshow("demo", img)
-    cv2.waitKey(0)
+    # # test a single image
+    # img = cv2.imread(args.img)
+
+    # output_img = pipline(model, img)
+
+
+    # # segment_image = inference_segmentor(model, img)
+    # # #show segment result
+    # # if hasattr(model, 'module'):
+    # #     model = model.module
+    # # seg_result = model.show_result(img, segment_image,
+    # #             palette=get_palette(args.palette),
+    # #             show=False, opacity=args.opacity)
+    # cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
+    # cv2.imshow("demo", output_img)
+    # cv2.waitKey(0)
 
 
 
 
 
     # test video
-    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
     # out = cv2.VideoWriter('edge_direction_demo.avi', fourcc, 20.0, (1920, 1080))
-    # cap = cv2.VideoCapture("D:/Project/Spinning_Bike/30427_hd_Trim_Trim.mp4")
-    # i = 0
-    # while cap.isOpened():
-    #     ret, frame = cap.read()
-    #     # test a single image
-    #     segment_image = inference_segmentor(model, frame)
+    cap = cv2.VideoCapture("D:/Project/SpinningBikeProject/Data/30427_hd_Trim_Trim.mp4")
+    i = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        # test a single image
+        segment_image = inference_segmentor(model, frame)
 
-    #     # #show segment result
-    #     # if hasattr(model, 'module'):
-    #     #     model = model.module
-    #     # seg_result = model.show_result(frame, segment_image,
-    #     #             palette=get_palette(args.palette),
-    #     #             show=False, opacity=args.opacity)
+        # #show segment result
+        if hasattr(model, 'module'):
+            model = model.module
+        seg_result = model.show_result(frame, segment_image,
+                    palette=get_palette(args.palette),
+                    show=False, opacity=args.opacity)
 
         
-    #     test_images_output =  pipline(segment_image)
+        # test_images_output =  pipline(model,frame)
 
-    #     # imgs = np.hstack([test_images_output])
-    #     # plt.imshow(imgs, cmap='gray')
-    #     # plt.show(block=False)
-    #     # plt.pause(1)
-    #     # plt.close()
+        # imgs = np.hstack([test_images_output])
+        # plt.imshow(imgs, cmap='gray')
+        # plt.show(block=False)
+        # plt.pause(1)
+        # plt.close()
 
-    #     # cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
-    #     # cv2.imshow("demo", test_images_output)
-    #     # cv2.waitKey(1)
+        cv2.namedWindow("demo", cv2.WINDOW_NORMAL)
+        cv2.imshow("demo", seg_result)
+        cv2.waitKey(1)
 
-    #     out.write(test_images_output)
-    #     print(i)
+        # out.write(test_images_output)
+        print(i)
 
-    #     i+=1
-    #     if cv2.waitKey(1) == ord('q'):
-    #         break
+        i+=1
+        if cv2.waitKey(1) == ord('q'):
+            break
 
-    # cap.release()
-    # out.release()
-    # cv2.destroyAllWindows()
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
