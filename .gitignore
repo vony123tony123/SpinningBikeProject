@@ -263,6 +263,5 @@ crashlytics-build.properties
 fabric.properties
 
 Data/*
-cfg/*
 weights/*
 *.json
