@@ -86,14 +86,18 @@ try:
 except:
 	cap.release()
 	cv2.destroyAllWindows()
+	json_dict = {}
+	json_dict['FrameData'] = json_arr
 	with open("test.json", 'w') as file:
-		json_input = json.dumps(json_arr,indent=4)
+		json_input = json.dumps(json_dict,indent=4)
 		file.write(json_input)
 		del json_input
 
 cap.release()
 cv2.destroyAllWindows()
+json_dict = {}
+json_dict['FrameData'] = json_arr
 with open("test.json", 'w') as file:
-		json_input = json.dumps(json_arr,indent=4)
+		json_input = json.dumps(json_dict,indent=4)
 		file.write(json_input)
 		del json_input

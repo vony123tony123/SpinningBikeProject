@@ -265,3 +265,4 @@ fabric.properties
 Data/*
 cfg/*
 weights/*
+*.json
