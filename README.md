@@ -6,6 +6,7 @@ We designed a **Forward Collision Warning System** that contains lane line detec
 ## Pre-Requisites
 1.  ```
     conda create --name spinningBike python=3.9 -y
+    conda activate spinningBike
     ```
 2. &nbsp; Install pytorch
 3. ```
