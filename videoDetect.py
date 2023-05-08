@@ -43,7 +43,9 @@ class laneThread():
 			return self.lanePred
 
 rd.initialize('./weights/yolov7-w6.pt', './cfg/upernet_internimage_l.py', './weights/upernet_internimage_l.pth')
-cap = cv2.VideoCapture('./30427_hd_Trim.mp4')
+cap = cv2.VideoCapture('./Data/video_Trim.mp4')
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
+out = cv2.VideoWriter('output.mp4', fourcc, 20.0,(640,640))
 frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 yoloThread = yoloThread()
@@ -75,9 +77,8 @@ try:
 		print(dict_input)
 		del dict_input
 
-		# frame = rd.drawResult(obstacles, laneLine, frame)
-		# cv2.imshow('l', frame)
-		# cv2.waitKey(1)
+		frame = rd.drawResult(obstacles, laneLine, frame)
+		out.write(frame)
 		print(f'len(json_arr) = {len(json_arr)}')
 		print('-------')
 		i+=1
@@ -85,6 +86,7 @@ try:
 			break
 except:
 	cap.release()
+	out.release()
 	cv2.destroyAllWindows()
 	json_dict = {}
 	json_dict['FrameData'] = json_arr

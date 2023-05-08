@@ -1,3 +1,5 @@
+from argparse import ArgumentParser
+
 import mmcv
 import mmcv_custom   # noqa: F401,F403
 import mmseg_custom   # noqa: F401,F403
@@ -8,8 +10,6 @@ from mmseg.core import get_classes
 import cv2
 import numpy as np
 import math
-import time
-import os
 
 def initialize(config = '../cfg/upernet_internimage_l.py',  checkpoint = '../weights/upernet_internimage_l.pth', device='cuda:0', palette = 'cityscapes'):
     global model
@@ -20,7 +20,7 @@ def initialize(config = '../cfg/upernet_internimage_l.py',  checkpoint = '../wei
     else:
         model.CLASSES = get_classes(palette)
 
-def get_lines(lines):
+def get_lines(lines, center_x, center_y):
     coordinates = np.array(list(zip(lines[:, 0, 0], lines[:, 0, 1], lines[:, 0, 2], lines[:, 0, 3]))).tolist()
 
     x1, y1, x2, y2 = coordinates[0]
@@ -35,11 +35,18 @@ def get_lines(lines):
             if coordinate != [x1, y1, x2, y2]:
                 x3, y3, x4, y4 = coordinate
 
-    # cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
-    # cv2.line(img, (x3, y3), (x4, y4), (0, 0, 255), 2)
+    # cal close and far points
+    if y1 > y2:
+        close_x, close_y, far_x, far_y = x1, y1, x2, y2
+    else:
+        close_x, close_y, far_x, far_y = x2, y2, x1, y2
+    left_line = [close_x, close_y, far_x, far_y]
 
-    right_line = [x1, y1, x2, y2]
-    left_line = [x3, y3, x4, y4]
+    if y3 > y4:
+        close_x, close_y, far_x, far_y = x3, y3, x4, y4
+    else:
+        close_x, close_y, far_x, far_y = x4, y4, x3, y3
+    right_line = [close_x, close_y, far_x, far_y]
 
     return right_line, left_line
 
@@ -58,8 +65,6 @@ def weighted_img(img, initial_img, α=0.8, β=1., γ=0.):
     return cv2.addWeighted(initial_img, α, img, β, γ)
 
 def pipline(img):
-    global model
-
     segment_image = inference_segmentor(model, img)
 
     # 把非0的全部統一為1
@@ -144,13 +149,16 @@ def determine_direction(included_angle):
     else:
         return "Straight"
 
+def cal_distance(x1, y1, x2, y2):
+    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
 def img_seg(img):
     global model, checkpoint
     images_output, lines = pipline(img)
 
-    right_line, left_line = get_lines(lines)
-
     center_x, center_y = int(img.shape[1] / 2), img.shape[0]
+    right_line, left_line = get_lines(lines, center_x, center_y)
+
     inter_x, inter_y = find_highest(lines, center_x, center_y)  # highest point
     highest_point = np.array([inter_x, inter_y]).tolist()
     point_x, point_y = int(img.shape[1] / 2), int(img.shape[0] / 2)
@@ -161,16 +169,4 @@ def img_seg(img):
         included_angle = round(angle1 - angle2, 2)
         direction = determine_direction(included_angle)
 
-    # cv2.imshow('l', img)
-    # cv2.waitKey(1)
-
-    print([right_line, left_line, direction, highest_point, included_angle])
-
     return [right_line, left_line, direction, highest_point, included_angle]
-
-# path = "./Data/video_images/30427_hd_Trim_Trim/"
-# frame = 0
-# for filename in os.listdir(path):
-#     img = cv2.imread(path + filename)
-#     img_seg(img)
-#     frame += 1
