@@ -3,6 +3,7 @@ import cv2
 
 rd.initialize('./weights/yolov7-w6.pt', './cfg/upernet_internimage_l.py', './weights/upernet_internimage_l.pth')
 img = cv2.imread('./test.jpg')
+img = cv2.resize(img, (1024, 512))
 obstacles, laneLine, img = rd.detect(img, drawPicture=True)
 cv2.imshow('l', img)
 cv2.waitKey(0)

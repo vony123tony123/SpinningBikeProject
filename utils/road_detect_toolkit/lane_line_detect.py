@@ -7,6 +7,7 @@ from mmseg.apis import inference_segmentor, init_segmentor, show_result_pyplot
 from mmseg.core.evaluation import get_palette
 from mmcv.runner import load_checkpoint
 from mmseg.core import get_classes
+from utils.torch_utils import time_synchronized
 import cv2
 import numpy as np
 import math
@@ -65,8 +66,12 @@ def weighted_img(img, initial_img, α=0.8, β=1., γ=0.):
     return cv2.addWeighted(initial_img, α, img, β, γ)
 
 def pipline(img):
+    t1 = time_synchronized()
     segment_image = inference_segmentor(model, img)
+    t2 = time_synchronized()
+    print(f'Segement: ({(1E3 * (t2 - t1)):.1f}ms). ', end='')
 
+    t3 = time_synchronized()
     # 把非0的全部統一為1
     segment_image = np.array(segment_image[0]).astype(np.uint8)
     segment_image[segment_image == 1] = 0   # 把sideroad和road 合成一個類別
@@ -121,6 +126,10 @@ def pipline(img):
 
     images_output = weighted_img(edges, img, α=0.8, β=1., γ=0.)
 
+    t4 = time_synchronized()
+
+    print(f'Image Processing: ({(1E3 * (t4 - t3)):.1f}ms). ')
+
     return images_output, lines
 
 def find_highest(lines, center_x, center_y):
@@ -154,7 +163,9 @@ def cal_distance(x1, y1, x2, y2):
 
 def img_seg(img):
     global model, checkpoint
+    t1 = time_synchronized()
     images_output, lines = pipline(img)
+    t2 = time_synchronized()
 
     center_x, center_y = int(img.shape[1] / 2), img.shape[0]
     right_line, left_line = get_lines(lines, center_x, center_y)
@@ -168,5 +179,7 @@ def img_seg(img):
     if angle1 is not None:
         included_angle = round(angle1 - angle2, 2)
         direction = determine_direction(included_angle)
-
+    
+    t3 = time_synchronized()
+    print(f'Lane detect Done. Pipline: ({(1E3 * (t2 - t1)):.1f}ms). Calculate: ({(1E3 * (t3 - t2)):.1f}ms)')
     return [right_line, left_line, direction, highest_point, included_angle]

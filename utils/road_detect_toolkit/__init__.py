@@ -22,10 +22,6 @@ def drawResult(obstacles, laneLine, img):
 			cv2.rectangle(img, (x-w//2, y-h//2), (x+w//2, y+h//2), (0, 0, 255), 2)
 
 	# draw road line
-	# cv2.line(img, (laneLine[0][0], laneLine[0][1]), (laneLine[0][2], laneLine[0][3]), (255, 0, 0), 2)
-	# cv2.line(img, (laneLine[1][0], laneLine[1][1]), (laneLine[1][2], laneLine[1][3]), (255, 0, 0), 2)
-
-	# draw road line
 	x1, y1, x2, y2 = laneLine[1]
 	x3, y3, x4, y4 = laneLine[0]
 
