@@ -3,6 +3,7 @@ from videoDetect import Road_detect, save_json
 import utils.road_detect_toolkit  as rd
 import atexit
 import time
+import datetime
 import threading
 import socket
 
@@ -42,6 +43,9 @@ def addWaitQueue(video_name):
             loaded_model = True
         video_path = os.path.join(video_base_path, video_name)
         detect_thread.add_video(video_path)
+        with open('WaitQueue_log.txt', 'a') as f:
+            now_formatted = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            f.write(now_formatted + ' : '+ str(detect_thread.get_waitList()) + '\n')
         return detect_thread.get_waitList()
     except Exception as e:
         raise
@@ -70,6 +74,10 @@ def handle_client(conn, client_name):
                     print(message)
                     # speed, cadence, angle = message.split(' ')
                     
+                    with open('RasberryRecieve_log.txt', 'a') as f:
+                        now_formatted = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        f.write(now_formatted + ' : '+ message + '\n')
+
                     cilent_unity_socket.send(message.encode())
                     cilent_raspberry_socket.send(message.encode())
         except Exception as e:

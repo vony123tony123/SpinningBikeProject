@@ -265,3 +265,5 @@ fabric.properties
 Data/*
 weights/*
 *.json
+RasberryRecieve_log.txt
+WaitQueue_log.txt

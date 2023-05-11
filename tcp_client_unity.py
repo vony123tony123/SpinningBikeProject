@@ -6,9 +6,9 @@ PORT = 14786
 Connect_PORT = 30000
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.settimeout(1)
 s.bind((HOST, PORT))
 s.connect((HOST, Connect_PORT))
+s.settimeout(1)
 
 while True:
     try:
