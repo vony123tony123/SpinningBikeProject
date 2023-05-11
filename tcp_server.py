@@ -61,7 +61,6 @@ def handle_client(conn, client_name):
                     # 處理 unity 傳來的影片名稱
                     message = data.decode()
                     return_message = 'Add ' + message +' to WaitQueue.'
-                    print(return_message)
 
                     addWaitQueue(message)
 
@@ -71,7 +70,6 @@ def handle_client(conn, client_name):
                 elif client_name == 'raspberry':
                     # 處理 raspberry 
                     message = data.decode()
-                    print(message)
                     # speed, cadence, angle = message.split(' ')
                     
                     with open('RasberryRecieve_log.txt', 'a') as f:
@@ -115,6 +113,7 @@ for i in range(2):
     while True:
         try:
             (client_socket, client_address) = server_socket.accept()
+            #暫定unity的port 為14786，如果要測試記得改
             if client_address[1] == 14786:
                 cilent_unity_socket = client_socket
                 print('connected to unity by ' + str(client_address))
