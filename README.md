@@ -14,7 +14,11 @@ We designed a **Forward Collision Warning System** that contains lane line detec
     mim install mmcv-full==1.5.0
     pip install -r requirements.txt
     ```
-4. &nbsp; Download [Google Drive](https://drive.google.com/drive/folders/1Sb6b0BC1J_1LKZ2U57y-wOMGemdH8yn_?usp=share_link) and put them into `./weights`
+4. ```
+    cd ops_dcnv3
+    python setup.py build install
+   ```
+6. &nbsp; Download [Google Drive](https://drive.google.com/drive/folders/1Sb6b0BC1J_1LKZ2U57y-wOMGemdH8yn_?usp=share_link) and put them into `./weights`
 
 ## The flow of Forward Collision Warning System
 ### obstacles detection
