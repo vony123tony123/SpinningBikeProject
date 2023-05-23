@@ -5,7 +5,9 @@ import time
 import json
 import os
 
+from pathlib import Path
 import utils.road_detect_toolkit  as rd
+from utils.general import increment_path
 
 class yoloThread():
 	def start(self, img):
@@ -43,11 +45,17 @@ class laneThread():
 		else:
 			return self.lanePred
 
-def Road_detect(video_path = './Data/video_Trim.mp4'):
-	global json_arr
+def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
+	#Directory
+	save_dir = Path(increment_path(Path('runs/detect') / 'exp', exist_ok=False))  # increment run
+	(save_dir / 'images').mkdir(parents=True, exist_ok=True)  # make dir
+
 	cap = cv2.VideoCapture(video_path)
-	fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
-	out = cv2.VideoWriter('output.mp4', fourcc, 20.0,(640,640))
+	width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+	height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+	fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+	video_name = os.path.basename(video_path).split('.')[0]+'.mp4'
+	out = cv2.VideoWriter(f'{save_dir}/{video_name}', fourcc, 30.0,(width, height))
 	frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 	yolo_thread = yoloThread()
@@ -79,23 +87,35 @@ def Road_detect(video_path = './Data/video_Trim.mp4'):
 			print(dict_input)
 			del dict_input
 
-			frame = rd.drawResult(obstacles, laneLine, frame)
-			out.write(frame)
+			result_img = rd.drawResult(obstacles, laneLine, frame)
+			out.write(result_img)
+
+			# save Image
+			if len(objects) != 0:
+				cv2.imwrite(f'{save_dir}/images/{i}.jpg',result_img)
+
 			print('-------')
 			i+=1
 			if(i>=frame_count):
 				break
-	except:
-		pass
+	except Exception as e:
+		print("Exception happened")
+		print(e)
 
-	cap.release()
-	out.release()
-	cv2.destroyAllWindows()
-	txt_path = os.path.splitext(video_path)[0] + '.txt'
-	save_json(txt_path)
+	finally:
+		cap.release()
+		out.release()
+		cv2.destroyAllWindows()
 
-def save_json(txt_path):
-	global json_arr
+		# save json file
+		basename = os.path.basename(video_path).split('.')[0] + '.json'
+		txt_path = str(save_dir)+ '/' + basename
+		print(txt_path)
+		save_json(txt_path, json_arr)
+
+		del json_arr
+
+def save_json(txt_path, json_arr):
 	if len(json_arr) != 0:
 		json_dict = {}
 		json_dict['FrameData'] = json_arr

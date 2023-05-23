@@ -6,6 +6,7 @@ import time
 import datetime
 import threading
 import socket
+import json
 
 class detectThread():
     wait_list = []
@@ -51,6 +52,7 @@ def addWaitQueue(video_name):
         raise
 
 def handle_client(conn, client_name):
+    global current_angle
     while True:
         try:
             # 接收client傳來的資料
@@ -66,18 +68,20 @@ def handle_client(conn, client_name):
 
                     # 將處理後的結果回傳給unity
                     cilent_unity_socket.send(return_message.encode())
+                    
                 # 處理client B傳來的資料
                 elif client_name == 'raspberry':
                     # 處理 raspberry 
                     message = data.decode()
-                    # speed, cadence, angle = message.split(' ')
                     
                     with open('RasberryRecieve_log.txt', 'a') as f:
                         now_formatted = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         f.write(now_formatted + ' : '+ message + '\n')
+                        
+                    cilent_unity_socket.send(send_json.encode())
+                    cilent_raspberry_socket.send(send_json.encode())
 
-                    cilent_unity_socket.send(message.encode())
-                    cilent_raspberry_socket.send(message.encode())
+                    
         except Exception as e:
             print(e)
             break
@@ -128,7 +132,7 @@ for i in range(2):
         except socket.timeout:
             continue
 
-# 建立兩個thread處理unity和rasberry的資料
+# 最後需要回傳給unity所以要等unity_socket到了才能執行
 client_raspberry_thread = threading.Thread(target=handle_client, args=(cilent_raspberry_socket, 'raspberry'))
 client_raspberry_thread.daemon = True
 client_raspberry_thread.start()
