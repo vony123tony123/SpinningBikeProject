@@ -8,7 +8,11 @@ We designed a **Forward Collision Warning System** that contains lane line detec
     conda create --name spinningBike python=3.9 -y
     conda activate spinningBike
     ```
-2. &nbsp; Install pytorch
+2. &nbsp; Install pytorch\
+    For examples, to install torch==1.11 with CUDA==11.3:
+    ```
+    pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
+    ```
 3. ```
     pip install -U openmim
     mim install mmcv-full==1.5.0
