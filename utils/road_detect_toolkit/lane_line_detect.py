@@ -41,13 +41,28 @@ def get_lines(lines, center_x, center_y):
         close_x, close_y, far_x, far_y = x1, y1, x2, y2
     else:
         close_x, close_y, far_x, far_y = x2, y2, x1, y2
+    # check is the line angle larger than 45 
+    slope = abs((far_y - close_y) / (far_x - close_x) ) if (far_x - close_x) != 0 else 99999.0
+    print(f"left_line: {slope}")
+    if slope > math.tan(math.radians(89)) or slope < math.tan(math.radians(5)):
+        close_x, close_y, far_x, far_y = 0, 0, 0, 0
     left_line = [close_x, close_y, far_x, far_y]
 
     if y3 > y4:
         close_x, close_y, far_x, far_y = x3, y3, x4, y4
     else:
         close_x, close_y, far_x, far_y = x4, y4, x3, y3
+    # check is the line angle larger than 45 
+    slope = abs((far_y - close_y) / (far_x - close_x)) if (far_x - close_x) != 0 else 99999.0
+    print(f"right_line: {slope}")
+    if slope > math.tan(math.radians(45)) or slope < math.tan(math.radians(5)):
+        close_x, close_y, far_x, far_y = 0, 0, 0, 0
     right_line = [close_x, close_y, far_x, far_y]
+
+    if(right_line[0] < left_line[0]):
+        tmp = right_line
+        right_line = left_line
+        left_line = tmp
 
     return right_line, left_line
 
