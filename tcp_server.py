@@ -67,7 +67,7 @@ def handle_client(conn, client_name):
 
                     # 將處理後的結果回傳給unity
                     cilent_unity_socket.send(return_message.encode())
-                    
+                        
                 # 處理raspberry傳來的資料
                 elif client_name == 'raspberry':
                     # 處理 raspberry 
@@ -118,6 +118,7 @@ while True:
                     #暫定unity的port 為14786，如果要測試記得改
                     if client_address[1] == 14786:
                         cilent_unity_socket = client_socket
+                        cilent_unity_socket.send('OK'.encode())
                         print('connected to unity by ' + str(client_address))
                         client_unity_thread = threading.Thread(target=handle_client, args=(cilent_unity_socket, 'unity'))
                         client_unity_thread.daemon = True
@@ -142,8 +143,11 @@ while True:
 
 
     except Exception:
-        cilent_unity_socket.close()
-        client_raspberry_socket.close()
+        try:
+            cilent_unity_socket.close()
+            client_raspberry_socket.close()
+        except Exception:
+            pass
         continue
 
 server_socket.close()
