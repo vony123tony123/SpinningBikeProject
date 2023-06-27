@@ -61,12 +61,17 @@ def handle_client(conn, client_name):
                 if client_name == 'unity':
                     # 處理 unity 傳來的影片名稱
                     message = data.decode()
-                    return_message = 'Add ' + message +' to WaitQueue.'
 
-                    # addWaitQueue(message)
+                    if message == "Disconnect":
+                        return_message = "Close socket"
+                        cilent_unity_socket.send(return_message.encode())
+                        raise Exception("accept unity disconnect request")
+                    else:
+                        return_message = 'Add ' + message +' to WaitQueue.'
+                        # addWaitQueue(message)
 
-                    # 將處理後的結果回傳給unity
-                    cilent_unity_socket.send(return_message.encode())
+                        # 將處理後的結果回傳給unity
+                        cilent_unity_socket.send(return_message.encode())
                         
                 # 處理raspberry傳來的資料
                 elif client_name == 'raspberry':
