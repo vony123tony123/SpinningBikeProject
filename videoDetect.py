@@ -51,11 +51,14 @@ def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
 	(save_dir / 'images').mkdir(parents=True, exist_ok=True)  # make dir
 
 	cap = cv2.VideoCapture(video_path)
+
 	width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 	height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+	fps = cap.get(cv2.CAP_PROP_FPS)
+
 	fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 	video_name = os.path.basename(video_path).split('.')[0]+'.mp4'
-	out = cv2.VideoWriter(f'{save_dir}/{video_name}', fourcc, 30.0,(width, height))
+	out = cv2.VideoWriter(f'{save_dir}/{video_name}', fourcc, fps,(width, height))
 	frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 	yolo_thread = yoloThread()
