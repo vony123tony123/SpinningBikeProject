@@ -8,6 +8,9 @@ import threading
 import socket
 import json
 
+unity_connect = False
+raspberry_connect = False
+
 class detectThread():
     wait_list = []
     def start(self):
@@ -57,6 +60,7 @@ def handle_client(conn, client_name):
             # 接收client傳來的資料
             data = conn.recv(1024)
             if data:
+                print(data)
                 # 處理unity傳來的資料
                 if client_name == 'unity':
                     # 處理 unity 傳來的影片名稱
@@ -81,8 +85,9 @@ def handle_client(conn, client_name):
                     with open('RasberryRecieve_log.txt', 'a') as f:
                         now_formatted = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         f.write(now_formatted + ' : '+ message + '\n')
-                        
-                    cilent_unity_socket.send(data)
+                    
+                    if unity_connect == True:
+                        cilent_unity_socket.send(data)
                     client_raspberry_socket.send(data)
 
         except Exception as e:
@@ -101,7 +106,7 @@ detect_thread = detectThread()
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # 設定IP位址和埠號
-ip_address = '127.0.0.1'
+ip_address = '192.168.100.145'
 port_number = 30000
 
 # 將socket繫結到指定IP和埠號
@@ -116,31 +121,36 @@ print('wait for connection...')
 while True:
     try:
         #等待unity cilent 和 raspberry pi cilent 連接
-        for i in range(2):
+        for i in range(1):
             while True:
                 try:
                     (client_socket, client_address) = server_socket.accept()
                     #暫定unity的port 為14786，如果要測試記得改
-                    if client_address[1] == 14786:
+                    if client_address[0] == ip_address:
                         cilent_unity_socket = client_socket
-                        cilent_unity_socket.send('OK'.encode())
                         print('connected to unity by ' + str(client_address))
                         client_unity_thread = threading.Thread(target=handle_client, args=(cilent_unity_socket, 'unity'))
                         client_unity_thread.daemon = True
-                        client_unity_thread.start()
+                        unity_connect = True
                         break
                     else:
                         client_raspberry_socket = client_socket
                         print('connected to raspberry by ' + str(client_address))
+                        raspberry_connect = True
+                        client_raspberry_thread = threading.Thread(target=handle_client, args=(client_raspberry_socket, 'raspberry'))
+                        client_raspberry_thread.daemon = True
+                        client_raspberry_thread.start()
                         break
                 except socket.timeout:
                     continue
 
-        # 最後需要回傳給unity所以要等unity_socket到了才能執行
-        client_raspberry_thread = threading.Thread(target=handle_client, args=(client_raspberry_socket, 'raspberry'))
-        client_raspberry_thread.daemon = True
-        client_raspberry_thread.start()
+        # 最後需要回傳給unity所以要等unity_socket到了才能執行        
+        cilent_unity_socket.send('OK'.encode())
+        client_unity_thread.start()
+        
+        
 
+        
         while True:
             time.sleep(5)
             if not (client_raspberry_thread.is_alive() and client_unity_thread.is_alive()):
