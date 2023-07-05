@@ -52,3 +52,6 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 
+## Reference
+https://github.com/OpenGVLab/InternImage/tree/master/segmentation
+
