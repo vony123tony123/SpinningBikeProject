@@ -1,6 +1,6 @@
 import os
-from videoDetect import Road_detect, save_json
-import utils.road_detect_toolkit  as rd
+# from videoDetect import Road_detect, save_json
+# import utils.road_detect_toolkit  as rd
 import atexit
 import time
 import datetime
@@ -118,53 +118,6 @@ def rasberry_handle(conn):
         conn.close()
         print(f'Raspberry thread closed')
 
-# def handle_client(conn, client_name):
-    # while True:
-    #     try:
-    #         # 接收client傳來的資料
-    #         data = conn.recv(1024)
-            
-    #         if data:
-    #             print(data)
-    #             # 處理unity傳來的資料
-    #             if client_name == 'unity':
-    #                 # 處理 unity 傳來的影片名稱
-    #                 message = data.decode()
-
-    #                 with open('unity_log.txt', 'a') as f:
-    #                     now_formatted = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #                     f.write(now_formatted + ' : '+ message + '\n')
-
-    #                 if message == "Disconnect":
-    #                     return_message = "Close socket"
-    #                     cilent_unity_socket.send(return_message.encode())
-    #                     raise Exception("accept unity disconnect request")
-    #                 else:
-    #                     return_message = 'Add ' + message +' to WaitQueue.'
-    #                     # addWaitQueue(message)
-
-    #                     # 將處理後的結果回傳給unity
-    #                     cilent_unity_socket.send(return_message.encode())
-                        
-    #             # 處理raspberry傳來的資料
-    #             elif client_name == 'raspberry':
-    #                 # 處理 raspberry 
-    #                 message = data.decode()
-                    
-    #                 with open('RasberryRecieve_log.txt', 'a') as f:
-    #                     now_formatted = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #                     f.write(now_formatted + ' : '+ message + '\n')
-                    
-    #                 if unity_connect == True:
-    #                     cilent_unity_socket.send(data)
-    #                 client_raspberry_socket.send(data)
-    #     except Exception as e:
-    #         traceback.print_exc()
-    #         # 關閉連接
-    #         conn.close()
-    #         print(f'{client_name} connection closed')
-    #         break
-
 
 video_base_path = "./Data/"
 loaded_model = False
@@ -174,7 +127,8 @@ detect_thread = detectThread()
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # 設定IP位址和埠號
-ip_address = '192.168.100.145'
+# ip_address = '192.168.100.145'
+ip_address = '127.0.0.1'
 port_number = 30000
 
 # 將socket繫結到指定IP和埠號
@@ -185,58 +139,6 @@ server_socket.listen(2)
 
 print('server start at: %s:%s' % (ip_address, port_number))
 print('wait for connection...')
-
-# while True:
-#     try:
-#         #等待unity cilent 和 raspberry pi cilent 連接
-#         for i in range(2):
-#             while True:
-#                 try:
-#                     (client_socket, client_address) = server_socket.accept()
-#                     #暫定unity的port 為14786，如果要測試記得改
-#                     if client_address[0] == ip_address:
-#                         cilent_unity_socket = client_socket
-#                         print('connected to unity by ' + str(client_address))
-#                         client_unity_thread = threading.Thread(target=handle_client, args=(cilent_unity_socket, 'unity'))
-#                         client_unity_thread.daemon = True
-#                         unity_connect = True
-#                         break
-#                     else:
-#                         client_raspberry_socket = client_socket
-#                         print('connected to raspberry by ' + str(client_address))
-#                         raspberry_connect = True
-#                         client_raspberry_thread = threading.Thread(target=handle_client, args=(client_raspberry_socket, 'raspberry'))
-#                         client_raspberry_thread.daemon = True
-#                         client_raspberry_thread.start()
-#                         break
-#                 except socket.timeout:
-#                     continue
-
-#         # 最後需要回傳給unity所以要等unity_socket到了才能執行       
-         
-#         # cilent_unity_socket.send('OK'.encode())
-#         # client_unity_thread.start()
-
-#         while True:
-#             time.sleep(5)
-#             if not (client_raspberry_thread.is_alive() and client_unity_thread.is_alive()):
-#                 raise Exception('unity or raspberry shutdown')
-
-
-#     except Exception as e:
-#         print(e)
-#         try:
-#             cilent_unity_socket.close()
-#         except Exception as e:
-#             print(e)
-#             pass
-
-#         try:
-#             client_raspberry_socket.close()
-#         except Exception as e:
-#             print(e)
-#             pass
-#         continue
 
 while True:
     #等待unity cilent 和 raspberry pi cilent 連接

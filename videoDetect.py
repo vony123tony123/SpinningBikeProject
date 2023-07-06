@@ -45,7 +45,7 @@ class laneThread():
 		else:
 			return self.lanePred
 
-def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
+def Road_detect(video_path = './Data/30427_hd_Trim_Trim.mp4'):
 	#Directory
 	save_dir = Path(increment_path(Path('runs/detect') / 'exp', exist_ok=False))  # increment run
 	(save_dir / 'images').mkdir(parents=True, exist_ok=True)  # make dir
@@ -62,7 +62,9 @@ def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
 	frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 	yolo_thread = yoloThread()
+	yolo_thread.daemon = True
 	lane_thread = laneThread()
+	lane_thread.daemon = True
 
 	obstacles_list = []
 	laneLine_list = []
@@ -85,6 +87,13 @@ def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
 				time.sleep(0.5)
 
 			objects = np.array(obstacles).flatten().tolist()
+			
+			# if i >= 10:
+			# 	direction_list = [json_arr[i]['direction'] for i in range(-1, -10, -1)]
+			# 	direction_list.append(laneLine[2])
+			# 	direction = max(set(direction_list), key = direction_list.count)
+			# else:
+			# 	direction = laneLine[2]
 			dict_input = {'frame':i, 'direction':laneLine[2], 'angle':laneLine[4], 'left_line_range':laneLine[1], 'right_line_range':laneLine[0],'top_point': laneLine[3], 'objects_position':objects}
 			json_arr.append(dict_input)
 			print(dict_input)
@@ -110,6 +119,8 @@ def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
 		out.release()
 		cv2.destroyAllWindows()
 
+		vote_direction(json_arr)
+
 		# save json file
 		basename = os.path.basename(video_path).split('.')[0] + '.json'
 		txt_path = str(save_dir)+ '/' + basename
@@ -117,6 +128,12 @@ def Road_detect(video_path = './Data/30427_hd_Trim.mp4'):
 		save_json(txt_path, json_arr)
 
 		del json_arr
+
+def vote_direction(json_arr):
+	for i in range(4, len(json_arr) - 5):
+		directions = [ j['direction'] for j in json_arr[i-4:i+6] ]
+		direction = max(set(directions), key = directions.count)
+		json_arr[i]['direction'] = direction
 
 def save_json(txt_path, json_arr):
 	if len(json_arr) != 0:
@@ -126,3 +143,7 @@ def save_json(txt_path, json_arr):
 				json_input = json.dumps(json_dict,indent=4)
 				file.write(json_input)
 				del json_input
+
+if __name__ == '__main__':
+	rd.initialize('./weights/yolov7-w6.pt', './cfg/upernet_internimage_l.py', './weights/upernet_internimage_l.pth')
+	Road_detect()

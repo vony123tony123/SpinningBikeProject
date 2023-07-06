@@ -21,7 +21,25 @@ def initialize(config = '../cfg/upernet_internimage_l.py',  checkpoint = '../wei
     else:
         model.CLASSES = get_classes(palette)
 
-def get_lines(lines, center_x, center_y):
+def check_line_legal(x1, y1, x2, y2, rule):
+     # cal close and far points
+    if y1 > y2:
+        close_x, close_y, far_x, far_y = x1, y1, x2, y2
+    else:
+        close_x, close_y, far_x, far_y = x2, y2, x1, y1
+
+    # check is the line angle larger than 45 
+    slope = abs((far_y - close_y) / (far_x - close_x) ) if (far_x - close_x) != 0 else 99999.0
+    if rule == 'left':
+        if slope > math.tan(math.radians(89)) or slope < math.tan(math.radians(5)):
+            close_x, close_y, far_x, far_y = 0, 0, 0, 0
+    else:
+        if slope > math.tan(math.radians(45)) or slope < math.tan(math.radians(5)):
+            close_x, close_y, far_x, far_y = 0, 0, 0, 0
+
+    return [close_x, close_y, far_x, far_y]
+
+def find_first_left_right_line(lines, img_width):
     coordinates = np.array(list(zip(lines[:, 0, 0], lines[:, 0, 1], lines[:, 0, 2], lines[:, 0, 3]))).tolist()
 
     x1, y1, x2, y2 = coordinates[0]
@@ -36,34 +54,24 @@ def get_lines(lines, center_x, center_y):
             if coordinate != [x1, y1, x2, y2]:
                 x3, y3, x4, y4 = coordinate
 
-    # cal close and far points
-    if y1 > y2:
-        close_x, close_y, far_x, far_y = x1, y1, x2, y2
-    else:
-        close_x, close_y, far_x, far_y = x2, y2, x1, y2
-    # check is the line angle larger than 45 
-    slope = abs((far_y - close_y) / (far_x - close_x) ) if (far_x - close_x) != 0 else 99999.0
-    print(f"left_line: {slope}")
-    if slope > math.tan(math.radians(89)) or slope < math.tan(math.radians(5)):
-        close_x, close_y, far_x, far_y = 0, 0, 0, 0
-    left_line = [close_x, close_y, far_x, far_y]
-
-    if y3 > y4:
-        close_x, close_y, far_x, far_y = x3, y3, x4, y4
-    else:
-        close_x, close_y, far_x, far_y = x4, y4, x3, y3
-    # check is the line angle larger than 45 
-    slope = abs((far_y - close_y) / (far_x - close_x)) if (far_x - close_x) != 0 else 99999.0
-    print(f"right_line: {slope}")
-    if slope > math.tan(math.radians(45)) or slope < math.tan(math.radians(5)):
-        close_x, close_y, far_x, far_y = 0, 0, 0, 0
-    right_line = [close_x, close_y, far_x, far_y]
+    left_line = check_line_legal(x1, y1, x2, y2, 'left')
+    right_line = check_line_legal(x3, y3, x4, y4, 'right')
 
     if(right_line[0] < left_line[0]):
         tmp = right_line
         right_line = left_line
         left_line = tmp
 
+    print(f'right_line: {right_line}')
+    print(f'left_line: {left_line}')
+    print(f'right and left distance {abs((right_line[0] - left_line[0]))}')
+    print(f'img_width * 0.5 {img_width * 0.5}')
+
+    # check left_line and right_line distance
+    if abs((right_line[0] - left_line[0])) <= img_width * 0.5:
+        left_line = [0, 0, 0, 0]
+        right_line = [0, 0, 0, 0]
+ 
     return right_line, left_line
 
 def weighted_img(img, initial_img, α=0.8, β=1., γ=0.):
@@ -87,6 +95,7 @@ def pipline(img):
     print(f'Segement: ({(1E3 * (t2 - t1)):.1f}ms). ', end='')
 
     t3 = time_synchronized()
+
     # 把非0的全部統一為1
     segment_image = np.array(segment_image[0]).astype(np.uint8)
     segment_image[segment_image == 1] = 0   # 把sideroad和road 合成一個類別
@@ -179,13 +188,13 @@ def cal_distance(x1, y1, x2, y2):
 def img_seg(img):
     global model, checkpoint
     t1 = time_synchronized()
-    images_output, lines = pipline(img)
+    images_output, houghlines = pipline(img)
     t2 = time_synchronized()
 
-    center_x, center_y = int(img.shape[1] / 2), img.shape[0]
-    right_line, left_line = get_lines(lines, center_x, center_y)
+    right_line, left_line = find_first_left_right_line(houghlines, img.shape[1])
 
-    inter_x, inter_y = find_highest(lines, center_x, center_y)  # highest point
+    center_x, center_y = int(img.shape[1] / 2), img.shape[0]
+    inter_x, inter_y = find_highest(houghlines, center_x, center_y)  # highest point
     highest_point = np.array([inter_x, inter_y]).tolist()
     point_x, point_y = int(img.shape[1] / 2), int(img.shape[0] / 2)
 
