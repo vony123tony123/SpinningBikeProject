@@ -53,7 +53,7 @@ cv2.destroyAllWindows()
 ```
 
 ## Demo Video
-[![Watch the video](https://i9.ytimg.com/vi_webp/zTAFhPJRROw/mq2.webp?sqp=CKCWwr0G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgXyhFMA8=&rs=AOn4CLD9GfZE3NT_jw6wU5nkghLlGn0IOQ)]((https://youtu.be/zTAFhPJRROw))
+[![Watch the video](https://i9.ytimg.com/vi_webp/zTAFhPJRROw/mq2.webp?sqp=CKCWwr0G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgXyhFMA8=&rs=AOn4CLD9GfZE3NT_jw6wU5nkghLlGn0IOQ)](https://youtu.be/zTAFhPJRROw)
 
 ## Reference
 https://github.com/OpenGVLab/InternImage/tree/master/segmentation
