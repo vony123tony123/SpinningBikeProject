@@ -29,8 +29,9 @@ We designed a **Forward Collision Warning System** that contains lane line detec
 
 
 ## Demo Video
-[![System Demo]()](https://youtu.be/oNtu96TE_9E) \
-[![Lane line detection and obstacles detection demo]()](https://youtu.be/zTAFhPJRROw)
+
+[![System Demo](https://github.com/user-attachments/assets/19215df6-fdf9-4ce6-9585-e6e02ba036fa)](https://youtu.be/oNtu96TE_9E) \
+[![Lane line detection and obstacles detection demo](https://github.com/user-attachments/assets/38206fd2-3dc9-4276-a754-4933a8085166)](https://youtu.be/zTAFhPJRROw)
 
 ## Pre-Requisites
 1.  ```
